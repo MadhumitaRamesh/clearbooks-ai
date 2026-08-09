@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     borderColor: theme.colors.border,
-    shadowColor: '#000',
+    shadowColor: theme.colors.shadow,
   },
   bigIcon: {
     fontSize: 48,

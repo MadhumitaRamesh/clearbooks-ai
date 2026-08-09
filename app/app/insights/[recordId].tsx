@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     borderLeftColor: theme.colors.warning,
   },
   alertText: {
-    color: '#B28200', // darker warning for better contrast
+    color: theme.colors.warningDark, // darker warning for better contrast
     ...(theme.typography.body as any),
     fontWeight: '600',
     marginBottom: theme.spacing.xs,

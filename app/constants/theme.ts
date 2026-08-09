@@ -6,11 +6,14 @@ export const theme = {
     surface: '#FFFFFF',
     text: '#2C2A29', // Dark brown/gray
     textLight: '#7E7A75',
+    textSecondary: '#7E7A75',
     border: '#E8E6E1',
     success: '#4CAF50',
     error: '#E53935',
     warning: '#FFC107',
-    info: '#2196F3'
+    warningDark: '#B28200',
+    info: '#2196F3',
+    shadow: '#000000'
   },
   spacing: {
     xs: 4,
