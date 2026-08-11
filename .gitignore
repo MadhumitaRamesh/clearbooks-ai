@@ -1,0 +1,12 @@
+# Environment variables
+.env
+.env.*
+
+# Expo
+.expo/
+
+# Node
+node_modules/
+
+# Expo generated files
+expo-env.d.ts
