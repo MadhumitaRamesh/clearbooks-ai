@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
-import { mockGetRecord } from '../../lib/mockApi';
+import { getRecord } from '../../lib/backend';
 import { RecordDetail } from '../../types/api';
 
 export default function InsightsScreen() {
@@ -18,7 +18,7 @@ export default function InsightsScreen() {
     setLoading(true);
     setError(false);
     try {
-      const recordData = await mockGetRecord(recordId);
+      const recordData = await getRecord(recordId as string);
       setData(recordData);
     } catch (e) {
       setError(true);

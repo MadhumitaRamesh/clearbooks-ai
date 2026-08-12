@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
-import { mockGetDashboard, mockGetHistory } from '../../lib/mockApi';
+import { getDashboard, getHistory } from '../../lib/backend';
 import { RecordDetail, RecordStatus } from '../../types/api';
 
 export default function HomeScreen() {
@@ -16,7 +16,7 @@ export default function HomeScreen() {
     setLoading(true);
     setError(false);
     try {
-      const [dash, hist] = await Promise.all([mockGetDashboard(), mockGetHistory()]);
+      const [dash, hist] = await Promise.all([getDashboard(), getHistory()]);
       setDashboard(dash);
       setHistory(hist.slice(0, 3)); // Only last 3
     } catch (e) {

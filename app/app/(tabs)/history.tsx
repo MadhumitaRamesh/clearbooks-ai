@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { theme } from '../../constants/theme';
-import { mockGetHistory } from '../../lib/mockApi';
+import { getHistory } from '../../lib/backend';
 import { RecordDetail, RecordStatus } from '../../types/api';
 
 export default function HistoryScreen() {
@@ -15,7 +15,7 @@ export default function HistoryScreen() {
     setLoading(true);
     setError(false);
     try {
-      const hist = await mockGetHistory();
+      const hist = await getHistory();
       // Sort newest first
       const sorted = hist.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setHistory(sorted);
