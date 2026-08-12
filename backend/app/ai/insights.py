@@ -41,15 +41,15 @@ Cap at 5 items. If there is not enough data, return an empty list.
 normally-active item, unusually high purchases with no matching sales (possible \
 overstock), or missing/incomplete data worth mentioning. If nothing stands out, \
 return an empty list — do not invent alerts.
-- If the transactions list is empty, return {{"summary": "No data yet — add a record to get started.", "top_items": [], "predictions": [], "alerts": []}}.
+- If the transactions list is empty, return {"summary": "No data yet — add a record to get started.", "top_items": [], "predictions": [], "alerts": []}.
 
 Schema:
-{{
+{
   "summary": "string",
-  "top_items": [{{"item": "string", "total_sales": number}}],
-  "predictions": [{{"item": "string", "predicted_demand_next_week": number}}],
+  "top_items": [{"item": "string", "total_sales": number}],
+  "predictions": [{"item": "string", "predicted_demand_next_week": number}],
   "alerts": ["string"]
-}}
+}
 """
 
 
