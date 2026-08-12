@@ -63,7 +63,7 @@ def _get_model() -> "genai.GenerativeModel":
     genai.configure(api_key=api_key)
     return genai.GenerativeModel(
         MODEL_NAME,
-        generation_config={"response_mime_type": "application/json"},
+        generation_config={"response_mime_type": "application/json", "max_output_tokens": 4096},
     )
 
 
