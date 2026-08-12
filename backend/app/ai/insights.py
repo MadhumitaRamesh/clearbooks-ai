@@ -21,7 +21,7 @@ import json
 
 import google.generativeai as genai
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-1.5-flash"
 
 SYSTEM_PROMPT = """You are a business-insights assistant for a small shop owner. \
 You will be given a JSON list of transactions (sales and purchases, each with \

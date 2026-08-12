@@ -28,7 +28,7 @@ from datetime import date
 
 import google.generativeai as genai
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-1.5-flash"
 
 SYSTEM_PROMPT = """You are a data-extraction engine for a small shop's handwritten \
 or spoken sales/purchase records. You will be given messy raw text (from OCR of \

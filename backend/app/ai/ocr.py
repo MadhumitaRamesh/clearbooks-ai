@@ -13,7 +13,7 @@ import sys
 
 import google.generativeai as genai
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-1.5-flash"
 
 def ocr_image(image_bytes: bytes) -> str:
     """Extract raw text from image bytes using Gemini 2.0 Flash."""
