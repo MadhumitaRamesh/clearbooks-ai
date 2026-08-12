@@ -14,7 +14,7 @@ router = APIRouter(prefix="/api/v1/records", tags=["records"])
 # TODO(Person 3): replace with the real logged-in owner id once Supabase auth
 # is wired up (Person 4 handles the client side of auth). Every query below
 # is written to filter by owner_id so swapping this constant out is a one-line change.
-FAKE_OWNER_ID = "00000000-0000-0000-0000-000000000000"
+FAKE_OWNER_ID = "8a6c5769-fe40-404e-b12e-b2eb22bcfe6a"
 
 
 def _process_record(record_id: str, source_type: str, raw_bytes: bytes) -> None:
