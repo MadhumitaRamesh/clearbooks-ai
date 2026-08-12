@@ -1,12 +1,8 @@
-// app/_layout.tsx
-// Root layout: signs the owner in anonymously on launch, then renders the
-// stack. Screens under app/ don't need to worry about auth — by the time
-// they mount, ensureSession() has already resolved once.
-
 import { useEffect, useState } from "react";
 import { View, ActivityIndicator, Text } from "react-native";
 import { Stack } from "expo-router";
 import { ensureSession } from "../lib/supabase";
+import { theme } from "../constants/theme";
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -20,8 +16,8 @@ export default function RootLayout() {
 
   if (authError) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-        <Text style={{ textAlign: "center" }}>
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: theme.colors.background }}>
+        <Text style={{ textAlign: "center", color: theme.colors.text }}>
           Couldn't connect: {authError}{"\n"}Check your internet connection and try again.
         </Text>
       </View>
@@ -30,20 +26,22 @@ export default function RootLayout() {
 
   if (!ready) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" />
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: theme.colors.background }}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="upload" />
-      <Stack.Screen name="preview" />
-      <Stack.Screen name="insights" />
-      <Stack.Screen name="history/index" />
-      <Stack.Screen name="history/[id]" />
+    <Stack screenOptions={{ 
+      headerShown: false,
+      contentStyle: { backgroundColor: theme.colors.background }
+    }}>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      <Stack.Screen name="upload" options={{ presentation: 'modal', title: 'Upload' }} />
+      <Stack.Screen name="preview" options={{ title: 'Preview' }} />
+      <Stack.Screen name="insights/[recordId]" options={{ title: 'Insights' }} />
     </Stack>
   );
 }
