@@ -110,6 +110,7 @@ export default function UploadScreen() {
       
       router.replace("/preview");
     } catch (e: any) {
+      console.error("Upload Error:", e);
       setUploadError(e.message ?? "Upload failed");
       setStatus("idle");
     } finally {
