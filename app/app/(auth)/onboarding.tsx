@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '../../constants/theme';
 
 export default function OnboardingScreen() {
@@ -8,9 +9,13 @@ export default function OnboardingScreen() {
   const [shopName, setShopName] = useState('');
   const [ownerName, setOwnerName] = useState('');
 
-  const handleStart = () => {
-    // In a real app, save to Context or AsyncStorage
-    // For now, just navigate to the tabs
+  const handleStart = async () => {
+    try {
+      await AsyncStorage.setItem('shopName', shopName);
+      await AsyncStorage.setItem('ownerName', ownerName);
+    } catch (e) {
+      console.error('Error saving to AsyncStorage', e);
+    }
     router.replace('/(tabs)/home');
   };
 
