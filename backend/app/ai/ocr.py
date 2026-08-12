@@ -1,48 +1,43 @@
 """
 ocr_image(image_bytes: bytes) -> str
 
-Uses Google Cloud Vision API to extract raw text from a photo of a
-handwritten/printed shop record.
+Uses Gemini 2.0 Flash to extract raw text from a photo of a
+handwritten/printed shop record (replacing Google Cloud Vision to avoid GCP billing issues).
 
 Env vars required:
-  GOOGLE_APPLICATION_CREDENTIALS  (path to a service-account JSON key file)
+  GEMINI_API_KEY
 """
 
 import os
 import sys
 
-from google.cloud import vision
+import google.generativeai as genai
 
-
-def _get_client() -> vision.ImageAnnotatorClient:
-    if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
-        raise RuntimeError(
-            "GOOGLE_APPLICATION_CREDENTIALS environment variable is not set "
-            "(should point to a service-account JSON key file)"
-        )
-    return vision.ImageAnnotatorClient()
-
+MODEL_NAME = "gemini-2.0-flash"
 
 def ocr_image(image_bytes: bytes) -> str:
-    """Extract raw text from image bytes using Google Cloud Vision's
-    document text detection (better than plain text_detection for
-    dense handwritten/printed receipts and ledger pages)."""
+    """Extract raw text from image bytes using Gemini 2.0 Flash."""
     if not image_bytes:
         return ""
 
-    client = _get_client()
-    image = vision.Image(content=image_bytes)
-
-    response = client.document_text_detection(image=image)
-
-    if response.error.message:
-        raise RuntimeError(f"Google Vision API error: {response.error.message}")
-
-    return response.full_text_annotation.text.strip()
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY environment variable is not set")
+    
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(MODEL_NAME)
+    
+    prompt = "Extract all text from this image exactly as written. Do not summarize or format. Just output the raw text."
+    
+    response = model.generate_content([
+        prompt,
+        {"mime_type": "image/jpeg", "data": image_bytes}
+    ])
+    
+    return response.text.strip()
 
 
 if __name__ == "__main__":
-    # Test with a sample image file: python ocr.py path/to/sample.jpg
     if len(sys.argv) < 2:
         print("Usage: python ocr.py <path-to-image-file>")
         sys.exit(1)
