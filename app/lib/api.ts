@@ -26,6 +26,7 @@ class ApiError extends Error {
 
 async function authHeaders(): Promise<Record<string, string>> {
   const token = await getAccessToken();
+  console.log("=== ACCESS TOKEN ===", token ? `${token.substring(0, 15)}...` : "null/undefined");
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
