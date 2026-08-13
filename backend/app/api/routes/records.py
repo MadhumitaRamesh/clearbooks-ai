@@ -1,5 +1,10 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect
 from datetime import datetime, timezone
+import uuid
+import os
+import json
+import asyncio
+import websockets
 import uuid
 
 from app.db.supabase_client import get_supabase
@@ -139,6 +144,65 @@ async def upload_audio(file: UploadFile = File(...)):
 @router.get("/{record_id}", response_model=FullRecordOut)
 async def get_record(record_id: str):
     return _fetch_full_record(record_id)
+
+
+@router.websocket("/audio/stream")
+async def stream_audio(websocket: WebSocket):
+    await websocket.accept()
+    api_key = os.environ.get("SARVAM_API_KEY")
+    if not api_key:
+        await websocket.close(code=1011, reason="SARVAM_API_KEY not set")
+        return
+        
+    try:
+        async with websockets.connect(
+            "wss://api.sarvam.ai/speech-to-text-realtime/ws?language_code=auto&model=saaras:v3-realtime",
+            additional_headers={"api-subscription-key": api_key}
+        ) as sarvam_ws:
+            # The Realtime API doesn't require an initial config message (config is in the URL query params)
+            
+            async def receive_from_app():
+                try:
+                    while True:
+                        # Frontend sends base64 strings
+                        data = await websocket.receive_text()
+                        payload = json.dumps({
+                            "event": "audio_input",
+                            "audio": data
+                        })
+                        await sarvam_ws.send(payload)
+                except WebSocketDisconnect:
+                    pass
+                except Exception as e:
+                    print(f"[stream] App WS error: {e}")
+                    
+            async def receive_from_sarvam():
+                try:
+                    while True:
+                        response = await sarvam_ws.recv()
+                        await websocket.send_text(response)
+                except websockets.exceptions.ConnectionClosed:
+                    pass
+                except Exception as e:
+                    print(f"[stream] Sarvam WS error: {e}")
+
+            task1 = asyncio.create_task(receive_from_app())
+            task2 = asyncio.create_task(receive_from_sarvam())
+            
+            done, pending = await asyncio.wait(
+                [task1, task2], 
+                return_when=asyncio.FIRST_COMPLETED
+            )
+            for p in pending:
+                p.cancel()
+                
+    except Exception as e:
+        print(f"[stream] WebSocket Proxy Error: {e}")
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass
 
 
 @router.get("", response_model=RecordListOut)

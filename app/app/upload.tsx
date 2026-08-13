@@ -7,6 +7,17 @@ import { theme } from '../constants/theme';
 import { uploadImage, uploadAudio, pollRecordUntilDone } from '../lib/backend';
 import { useAppStore } from '../lib/store';
 
+let ExpoSpeechRecognitionModule: any = null;
+let useSpeechRecognitionEvent: any = (event: string, callback: any) => {};
+
+try {
+  const STT = require('expo-speech-recognition');
+  ExpoSpeechRecognitionModule = STT.ExpoSpeechRecognitionModule;
+  useSpeechRecognitionEvent = STT.useSpeechRecognitionEvent;
+} catch (e) {
+  console.warn("expo-speech-recognition native module not found");
+}
+
 export default function UploadScreen() {
   const router = useRouter();
   const { type } = useLocalSearchParams<{ type: 'image' | 'audio' }>();
@@ -14,6 +25,11 @@ export default function UploadScreen() {
   const { isUploading, setIsUploading, uploadError, setUploadError } = useAppStore();
   const [status, setStatus] = useState<"idle" | "uploading" | "processing">("idle");
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [liveTranscript, setLiveTranscript] = useState("");
+
+  useSpeechRecognitionEvent('result', (event) => {
+    setLiveTranscript(event.results[0]?.transcript || "");
+  });
   
   // For audio pulsing animation
   const [pulseAnim] = useState(new Animated.Value(1));
@@ -62,6 +78,7 @@ export default function UploadScreen() {
         setStatus("processing");
         setIsUploading(true);
         await recording.stopAndUnloadAsync();
+        ExpoSpeechRecognitionModule?.stop();
         const uri = recording.getURI();
         setRecording(null);
         if (uri) {
@@ -81,6 +98,22 @@ export default function UploadScreen() {
           Audio.RecordingOptionsPresets.HIGH_QUALITY
         );
         setRecording(newRecording);
+        setLiveTranscript("");
+        
+        try {
+          if (ExpoSpeechRecognitionModule) {
+            const sttPerm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+            if (sttPerm.granted) {
+              ExpoSpeechRecognitionModule.start({
+                lang: 'en-US',
+                interimResults: true,
+                maxAlternatives: 1,
+              });
+            }
+          }
+        } catch (sttErr) {
+          console.warn("Live STT failed or not available in this client:", sttErr);
+        }
       }
     } catch (err: any) {
       console.error('Failed to start recording', err);
@@ -176,6 +209,9 @@ export default function UploadScreen() {
             <Text style={styles.recordingText}>
               {recording ? 'Recording... Tap to stop' : 'Tap to start recording'}
             </Text>
+            {recording && liveTranscript ? (
+              <Text style={styles.liveTranscriptText}>"{liveTranscript}"</Text>
+            ) : null}
           </View>
         )}
       </View>
@@ -269,6 +305,14 @@ const styles = StyleSheet.create({
     ...(theme.typography.body as any),
     color: theme.colors.textSecondary || theme.colors.textLight,
     marginTop: theme.spacing.xl,
+  },
+  liveTranscriptText: {
+    ...(theme.typography.h3 as any),
+    color: theme.colors.text,
+    marginTop: theme.spacing.m,
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingHorizontal: theme.spacing.l,
   },
   loader: {
     marginBottom: theme.spacing.l,

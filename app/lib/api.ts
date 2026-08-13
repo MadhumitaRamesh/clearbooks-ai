@@ -92,7 +92,8 @@ export async function getHistory(): Promise<RecordListItem[]> {
   const res = await fetch(`${BASE_URL}/api/v1/records`, {
     headers: await authHeaders(),
   });
-  return handle<RecordListItem[]>(res);
+  const data = await handle<{records: RecordListItem[]}>(res);
+  return data.records;
 }
 
 /** GET /api/v1/dashboard — aggregated insights across all records */
