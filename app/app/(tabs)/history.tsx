@@ -89,7 +89,7 @@ export default function HistoryScreen() {
                 <Text style={styles.sourceIcon}>{item.source_type === 'image' ? '📸' : '🎙️'}</Text>
               </View>
               <View style={styles.cardInfo}>
-                <Text style={styles.recordId}>{item.id}</Text>
+                <Text style={styles.recordId}>{item.source_type === 'image' ? 'Image upload' : 'Voice note'}</Text>
                 <Text style={styles.recordDate}>
                   {new Date(item.created_at).toLocaleDateString()} at {new Date(item.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </Text>

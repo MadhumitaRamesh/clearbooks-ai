@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../constants/theme';
 import { useAppStore } from '../lib/store';
 
@@ -55,7 +56,7 @@ export default function PreviewScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         <Text style={styles.title}>Confirm Your Record</Text>
         <Text style={styles.subtitle}>Please review the extracted items before saving.</Text>
@@ -99,7 +100,7 @@ export default function PreviewScreen() {
           <Text style={styles.secondaryButtonText}>Retry Upload</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

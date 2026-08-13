@@ -1,28 +1,39 @@
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator, Text } from "react-native";
-import { Stack } from "expo-router";
-import { ensureSession } from "../lib/supabase";
+import { View, ActivityIndicator } from "react-native";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { supabase } from "../lib/supabase";
 import { theme } from "../constants/theme";
+import { Session } from "@supabase/supabase-js";
 
 export default function RootLayout() {
+  const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
-    ensureSession()
-      .then(() => setReady(true))
-      .catch((err) => setAuthError(err.message ?? "Could not sign in"));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setReady(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  if (authError) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: theme.colors.background }}>
-        <Text style={{ textAlign: "center", color: theme.colors.text }}>
-          Couldn't connect: {authError}{"\n"}Check your internet connection and try again.
-        </Text>
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (!ready) return;
+
+    const inAuthGroup = segments[0] === "(auth)";
+
+    if (!session && !inAuthGroup) {
+      // Redirect to onboarding if not signed in
+      router.replace("/(auth)/onboarding");
+    }
+  }, [session, ready, segments]);
 
   if (!ready) {
     return (

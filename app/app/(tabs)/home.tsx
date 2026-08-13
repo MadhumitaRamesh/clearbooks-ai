@@ -91,7 +91,7 @@ export default function HomeScreen() {
               onPress={() => router.push(`/insights/${record.id}`)}
             >
               <View>
-                <Text style={styles.recordId}>{record.id}</Text>
+                <Text style={styles.recordId}>{record.source_type === 'image' ? '📸 Image upload' : '🎙️ Voice note'}</Text>
                 <Text style={styles.recordDate}>{new Date(record.created_at).toLocaleDateString()}</Text>
               </View>
               {renderStatusBadge(record.status)}
@@ -181,6 +181,8 @@ const styles = StyleSheet.create({
     ...(theme.typography.body as any),
     color: theme.colors.textLight,
     marginBottom: theme.spacing.m,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   alertBox: {
     backgroundColor: theme.colors.warning + '20',

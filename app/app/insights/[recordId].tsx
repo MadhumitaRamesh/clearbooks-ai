@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../../constants/theme';
 import { getRecord } from '../../lib/backend';
 import { RecordDetail } from '../../types/api';
@@ -42,21 +43,33 @@ export default function InsightsScreen() {
 
   if (error || !data) {
     return (
-      <View style={styles.centerContainer}>
+      <SafeAreaView style={styles.centerContainer}>
         <Text style={styles.errorText}>Failed to load insights.</Text>
         <TouchableOpacity style={styles.retryButton} onPress={loadData}>
           <Text style={styles.retryText}>Try Again</Text>
         </TouchableOpacity>
-      </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (!data.insights) {
+    return (
+      <SafeAreaView style={styles.centerContainer}>
+        <Text style={styles.errorText}>This record failed to process or has no insights.</Text>
+        <TouchableOpacity style={styles.homeButton} onPress={() => router.replace('/(tabs)/home')}>
+          <Text style={styles.homeButtonText}>Back to Home</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
     );
   }
 
   const { insights } = data;
-  const maxSales = Math.max(...insights.top_items.map(item => item.total_sales));
+  const maxSales = Math.max(...(insights.top_items?.map((item: any) => item.total_sales) || [0]), 1);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.summaryText}>{insights.summary}</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <Text style={styles.summaryText}>{insights.summary}</Text>
 
       {insights.alerts && insights.alerts.length > 0 && (
         <View style={styles.alertsContainer}>
@@ -69,7 +82,7 @@ export default function InsightsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Top Items (Sales)</Text>
         <View style={styles.chartContainer}>
-          {insights.top_items.map((item, index) => {
+          {(insights.top_items || []).map((item, index) => {
             const percentage = Math.max((item.total_sales / maxSales) * 100, 5); // min 5% width
             return (
               <View key={index} style={styles.chartRow}>
@@ -89,7 +102,7 @@ export default function InsightsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Demand Predictions</Text>
         <View style={styles.predictionsList}>
-          {insights.predictions.map((pred, index) => (
+          {(insights.predictions || []).map((pred, index) => (
             <View key={index} style={styles.predictionCard}>
               <Text style={styles.predictionIcon}>🔮</Text>
               <Text style={styles.predictionText}>
@@ -103,7 +116,8 @@ export default function InsightsScreen() {
       <TouchableOpacity style={styles.homeButton} onPress={() => router.replace('/(tabs)/home')}>
         <Text style={styles.homeButtonText}>Back to Home</Text>
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -147,6 +161,8 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     marginBottom: theme.spacing.l,
     lineHeight: 32,
+    flexShrink: 1,
+    flexWrap: 'wrap',
   },
   alertsContainer: {
     backgroundColor: theme.colors.warning + '20',

@@ -24,6 +24,13 @@ export default function TabLayout() {
           tabBarLabel: 'History'
         }} 
       />
+      <Tabs.Screen 
+        name="account" 
+        options={{ 
+          title: 'Account',
+          tabBarLabel: 'Account'
+        }} 
+      />
     </Tabs>
   );
 }

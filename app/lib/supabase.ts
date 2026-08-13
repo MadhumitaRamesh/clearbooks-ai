@@ -25,19 +25,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
 });
 
-/**
- * Ensures there's a signed-in session before any screen tries to hit the
- * backend. Call this once from the root layout on app start.
- * If a session already exists (returning user), it's reused.
- */
-export async function ensureSession(): Promise<Session> {
-  const { data: existing } = await supabase.auth.getSession();
-  if (existing.session) return existing.session;
-
-  const { data, error } = await supabase.auth.signInAnonymously();
-  if (error || !data.session) {
-    throw new Error(`Anonymous sign-in failed: ${error?.message ?? "unknown error"}`);
-  }
+export async function ensureSession(): Promise<Session | null> {
+  const { data } = await supabase.auth.getSession();
   return data.session;
 }
 
