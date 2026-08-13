@@ -20,6 +20,7 @@ export default function HomeScreen() {
       setDashboard(dash);
       setHistory(hist.slice(0, 3)); // Only last 3
     } catch (e) {
+      console.error("Dashboard/History load error:", e);
       setError(true);
     } finally {
       setLoading(false);

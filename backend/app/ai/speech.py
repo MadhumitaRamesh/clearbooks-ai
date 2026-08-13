@@ -22,7 +22,7 @@ import requests
 SARVAM_STT_URL = "https://api.sarvam.ai/speech-to-text"
 
 
-def transcribe_audio(audio_bytes: bytes, filename: str = "audio.wav") -> str:
+def transcribe_audio(audio_bytes: bytes, filename: str = "audio.m4a", mime_type: str = "audio/m4a") -> str:
     """Transcribe audio bytes to text using Sarvam AI (saaras:v3, transcribe mode).
 
     `filename` just needs a recognizable extension (wav/mp3/m4a/ogg/etc.) so
@@ -36,7 +36,7 @@ def transcribe_audio(audio_bytes: bytes, filename: str = "audio.wav") -> str:
         raise RuntimeError("SARVAM_API_KEY environment variable is not set")
 
     headers = {"api-subscription-key": api_key}
-    files = {"file": (filename, io.BytesIO(audio_bytes))}
+    files = {"file": (filename, io.BytesIO(audio_bytes), mime_type)}
     data = {
         "model": "saaras:v3",
         "mode": "transcribe",       # plain transcription (not translate/verbatim/translit)

@@ -20,6 +20,7 @@ export default function HistoryScreen() {
       const sorted = hist.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setHistory(sorted);
     } catch (e) {
+      console.error("Dashboard/History load error:", e);
       setError(true);
     } finally {
       setLoading(false);
